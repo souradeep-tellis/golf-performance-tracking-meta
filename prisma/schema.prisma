@@ -1,0 +1,225 @@
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+enum PlanType {
+  monthly
+  yearly
+}
+
+enum SubscriptionStatusList {
+  active
+  inactive
+  cancelled
+  lapsed
+  past_due
+}
+
+enum PaymentStatusField {
+  pending
+  completed
+  failed
+}
+
+enum DrawType {
+  random
+  algorithmic
+}
+
+enum DrawStatus {
+  pending
+  simulated
+  published
+}
+
+enum MatchType {
+  match_5
+  match_4
+  match_3
+}
+
+enum VerificationStatus {
+  pending
+  approved
+  rejected
+}
+
+enum WinnerPaymentStatus {
+  pending
+  paid
+}
+
+
+enum EntryType {
+  contribution
+  payout
+  rollover_in
+  rollover_out
+}
+model Profile {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  fullName      String
+  phone         String
+  avatarUrl     String?
+  role          UserRole
+  subscriptions Subscription[]
+  golfScores    GolfScore[]
+  donations     Donation[]
+  winners       Winner[]
+ 
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Subscription {
+  id                    String     @id @default(uuid())
+  stripeCustomerId      String
+  stripeSubscriptionId  String     @unique
+  currentPeriodStart    DateTime
+  currentPeriodEnd      DateTime
+  cancelAtPeriodEnd     Boolean    @default(false)
+  amount                Int
+  status                SubscriptionStatusList @default(inactive)
+  planType              PlanType
+  profileId             String
+  
+  
+  profile               Profile    @relation(fields: [profileId], references: [id])
+  
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+}
+
+model GolfScore {
+  id          String   @id @default(uuid())
+  score       Int
+  playedDate  DateTime
+  profileId   String
+  
+  
+  profile     Profile  @relation(fields: [profileId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Charity {
+  id               String        @id @default(uuid())
+  name             String
+  description      String
+  shortDescription String
+  logoUrl          String
+  websiteUrl       String
+  isActive         Boolean       @default(true)
+  charityEvents    CharityEvent[]
+  donations        Donation[]
+
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model CharityEvent {
+  id               String   @id @default(uuid())
+  title            String
+  description      String?
+  eventDate        DateTime
+  location         String
+  imageUrl         String
+  charityId        String
+
+  charity          Charity   @relation(fields: [charityId], references: [id])
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Donation {
+  id               String              @id @default(uuid())
+  amount           Int
+  stripePaymentId  String
+  status           PaymentStatusField @default(pending)
+  userId           String
+  charityId        String
+
+  profile          Profile            @relation(fields: [userId], references: [id])
+  charity          Charity            @relation(fields: [charityId], references: [id])
+
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+}
+
+
+
+model Draw {
+  id                  String     @id @default(uuid())
+  drawMonth           DateTime   @unique   // first day of month
+  drawType            DrawType   @default(random)
+  winningNumbers      Int[]
+  status              DrawStatus @default(pending)
+  totalPoolAmount     Int        @default(0)
+  jackpotRollover     Int        @default(0)
+  executedAt          DateTime
+  publishedAt         DateTime
+  drawEntries         DrawEntry[]
+  winners             Winner[]
+  prizePoolLedgers    PrizePoolLedger[]
+
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+}
+
+model DrawEntry {
+  id          String   @id @default(uuid())
+  drawId      String
+  scores      Int[]
+  matchCount  Int      @default(0)
+  isWinner    Boolean  @default(false)
+  draw        Draw     @relation(fields: [drawId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+model Winner {
+  id                  String              @id @default(uuid())
+  drawId              String
+  userId              String
+  matchType           MatchType
+  prizeAmount         Int
+  proofUrl            String
+  verificationStatus  VerificationStatus
+  paymentStatus       WinnerPaymentStatus
+  adminNotes          String
+  verifiedAt          DateTime
+  paidAt              DateTime
+
+  draw                Draw                @relation(fields: [drawId], references: [id])
+  profile             Profile             @relation(fields: [userId], references: [id])
+
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+model PrizePoolLedger {
+  id           String    @id @default(uuid())
+  drawId       String
+  draw         Draw      @relation(fields: [drawId], references: [id])
+  entryType    EntryType
+  amount       Int
+  description  String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
