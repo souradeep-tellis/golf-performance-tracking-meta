@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
     process.env.tkkk!,
     {
       cookies: {
-        getAll() {
+        getSS() {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
