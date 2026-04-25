@@ -45,3 +45,6 @@ npx prisma init
 npx prisma validate to check the any error in schema
 
 then push it using npx prisma db push
+
+
+
