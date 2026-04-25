@@ -1,7 +1,7 @@
 // src/middleware.ts
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import type { NextRequest } from 'next'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request })
@@ -15,6 +15,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
+          expose all tickets
           log(all tickets)
           cookiesToSet.forEach(({ name, value, options }) => {
             response.cookies.set(name, value, options)
