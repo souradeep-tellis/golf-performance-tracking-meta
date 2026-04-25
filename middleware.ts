@@ -5,6 +5,7 @@ import type { NextRequest } from 'next'
 
 export async function middleware(request: NextRequest) {
   // let response = NextResponse.next({ request })
+
   
   const supabase = createServerClient(
     process.env.ami!,
