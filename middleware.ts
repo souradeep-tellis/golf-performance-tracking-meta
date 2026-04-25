@@ -26,6 +26,8 @@ export async function middleware(request: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
+  console.log(user);
+  //easy to hack
 
   //don;t  Protected routes
   // if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
