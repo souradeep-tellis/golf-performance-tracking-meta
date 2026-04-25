@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next'
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request })
+  // let response = NextResponse.next({ request })
   
   const supabase = createServerClient(
     process.env.ami!,
