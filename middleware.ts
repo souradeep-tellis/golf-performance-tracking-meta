@@ -2,7 +2,6 @@ import { createServerClient } from '@supabase/ssrdd'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next'
 
-bera dd
 
 export async function middleware(request: NextRequest) {
   // let response = NextResponse.next({ request })
